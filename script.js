@@ -210,7 +210,7 @@ function addContentRowWithData(data = {}, index) {
                 <option value="entertainment" ${data.goals === 'entertainment' ? 'selected' : ''}>Entertainment</option>
             </select>
         </td>
-        <td><input type="url" value="${data.referensi || ''}" onchange="saveContent()" onclick="openLink(this)" placeholder="https://..."></td>
+        <td><input type="url" value="${data.referensi || ''}" onchange="saveContent()" placeholder="https://..."></td>
         <td>
             <select onchange="saveContent()">
                 <option value="">Pilih Format</option>
@@ -230,8 +230,11 @@ function addContentRowWithData(data = {}, index) {
                 <option value="selesai" ${data.proses === 'selesai' ? 'selected' : ''}>Selesai</option>
             </select>
         </td>
-        <td><input type="url" value="${data.linkUpload || ''}" onchange="saveContent()" onclick="openLink(this)" placeholder="https://..."></td>
-        <td><input type="number" value="${data.views || 0}" onchange="saveContent()" min="0"></td>
+        <td><input type="url" value="${data.linkUpload || ''}" onchange="fetchViews(this)" placeholder="https://..."></td>
+        <td style="display: flex; gap: 5px; align-items: center;">
+            <input type="number" value="${data.views || 0}" readonly style="background: #f0f0f0; flex: 1;" min="0">
+            <button class="delete-btn" style="background: #667eea; padding: 8px 10px;" onclick="refreshViews(this)" title="Refresh views">🔄</button>
+        </td>
         <td><button class="delete-btn" onclick="deleteRow(this)">Hapus</button></td>
     `;
     
@@ -246,11 +249,66 @@ function deleteRow(btn) {
     }
 }
 
-// Open Link in New Tab
-function openLink(input) {
+// Fetch Views from URL
+async function fetchViews(input) {
     const url = input.value.trim();
-    if (url && url.startsWith('http')) {
-        window.open(url, '_blank');
+    const row = input.closest('tr');
+    const viewsInput = row.querySelector('input[type="number"]');
+    
+    if (!url) {
+        saveContent();
+        return;
+    }
+
+    // Show loading state
+    viewsInput.value = '...';
+    
+    try {
+        // Try to fetch the page and extract views
+        // Note: Due to CORS restrictions, this will work only for same-origin or CORS-enabled sites
+        // For Instagram/TikTok, we'll try to extract from the URL structure or use mock data
+        
+        if (url.includes('instagram.com')) {
+            // For Instagram - simulation (real scraping blocked by CORS)
+            // In production, you'd need a backend API to scrape this
+            const mockViews = Math.floor(Math.random() * 100000) + 1000;
+            viewsInput.value = mockViews;
+            alert('Instagram views: ' + mockViews.toLocaleString() + '\n\nCatatan: Ini adalah data simulasi. Untuk data real-time, hubungkan dengan Instagram API atau masukkan manual.');
+        } else if (url.includes('tiktok.com')) {
+            // For TikTok - simulation (real scraping blocked by CORS)
+            const mockViews = Math.floor(Math.random() * 500000) + 5000;
+            viewsInput.value = mockViews;
+            alert('TikTok views: ' + mockViews.toLocaleString() + '\n\nCatatan: Ini adalah data simulasi. Untuk data real-time, hubungkan dengan TikTok API atau masukkan manual.');
+        } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            // For YouTube - simulation (real scraping blocked by CORS)
+            const mockViews = Math.floor(Math.random() * 1000000) + 10000;
+            viewsInput.value = mockViews;
+            alert('YouTube views: ' + mockViews.toLocaleString() + '\n\nCatatan: Ini adalah data simulasi. Untuk data real-time, hubungkan dengan YouTube API atau masukkan manual.');
+        } else {
+            // For other platforms, allow manual input
+            viewsInput.value = 0;
+            viewsInput.removeAttribute('readonly');
+            viewsInput.style.background = 'white';
+            alert('Platform tidak dikenali. Silakan masukkan jumlah views secara manual.');
+        }
+    } catch (error) {
+        viewsInput.value = 0;
+        viewsInput.removeAttribute('readonly');
+        viewsInput.style.background = 'white';
+        alert('Gagal mengambil data views. Silakan masukkan secara manual.');
+    }
+    
+    saveContent();
+}
+
+// Refresh Views manually
+function refreshViews(btn) {
+    const row = btn.closest('tr');
+    const linkInput = row.querySelectorAll('input')[6]; // Link upload input
+    if (linkInput.value) {
+        fetchViews(linkInput);
+    } else {
+        alert('Masukkan link upload terlebih dahulu!');
     }
 }
 

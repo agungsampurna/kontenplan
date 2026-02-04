@@ -306,6 +306,20 @@ body {
     font-size: 13px;
 }
 
+.content-table input[type="url"] {
+    color: #667eea;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.content-table input[type="url"]:hover {
+    color: #5568d3;
+}
+
+.content-table input[type="url"]:focus {
+    outline: 2px solid #667eea;
+}
+
 .add-row-btn {
     margin-top: 15px;
     padding: 10px 20px;
